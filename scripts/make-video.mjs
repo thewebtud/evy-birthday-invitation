@@ -1,5 +1,5 @@
 // Renders public/media/invitation.mp4 (25s, 720x1280, 25fps) by capturing the #render scenes
-// of the app frame by frame, then muxing with a synthesised lullaby.
+// of the app frame by frame, then muxing with the music track in scripts/music.
 // Usage: node scripts/make-video.mjs   (needs Chrome installed; ffmpeg comes from ffmpeg-static)
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, mkdirSync, rmSync } from 'node:fs'
@@ -33,15 +33,9 @@ try {
   await server.close()
 }
 
-// Music: original twinkle-style melody from sine tones (no licensing), with a soft octave layer
-const notes = [[523.25, 0.5], [523.25, 0.5], [783.99, 0.5], [783.99, 0.5], [880, 0.5], [880, 0.5], [783.99, 1],
-  [698.46, 0.5], [698.46, 0.5], [659.25, 0.5], [659.25, 0.5], [587.33, 0.5], [587.33, 0.5], [523.25, 1]]
-const seq = Array.from({ length: 4 }, () => notes).flat()
-const inputs = seq.flatMap(([f, d]) => ['-f', 'lavfi', '-i', `sine=f=${f}:d=${d}:r=44100`])
-const filt = seq.map(([, d], i) => `[${i}:a]afade=t=in:d=0.02,afade=t=out:st=${d - 0.15}:d=0.15[a${i}];`).join('')
-const chain = seq.map((_, i) => `[a${i}]`).join('')
+// Music: "Happy Kids Music" by BeardMusicStock (CC BY-NC-SA 3.0, personal non-commercial use)
 const run = (args) => execFileSync(ffmpeg, ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' })
-run([...inputs, '-filter_complex', `${filt}${chain}concat=n=${seq.length}:v=0:a=1,atrim=0:${SECONDS},volume=0.35,afade=t=out:st=23:d=2`, '-c:a', 'aac', '-b:a', '128k', join(tmp, 'music.m4a')])
+run(['-i', 'scripts/music/happy-kids-music.mp3', '-t', String(SECONDS), '-af', `volume=0.8,afade=t=in:d=0.3,afade=t=out:st=${SECONDS - 2}:d=2`, '-c:a', 'aac', '-b:a', '128k', join(tmp, 'music.m4a')])
 run(['-framerate', String(FPS), '-i', join(tmp, 'f%04d.jpg'), '-i', join(tmp, 'music.m4a'), '-c:v', 'libx264', '-preset', 'slow', '-crf', '24', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-t', String(SECONDS), '-movflags', '+faststart', `${OUT}/invitation.mp4`])
 run(['-i', `${OUT}/invitation.mp4`, '-ss', '7', '-frames:v', '1', '-q:v', '4', `${OUT}/poster.jpg`])
 rmSync(tmp, { recursive: true, force: true })
