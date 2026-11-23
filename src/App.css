@@ -28,7 +28,7 @@ h1, h2, .rainbow, .btn, .open-btn { font-family: var(--font-display); font-weigh
 .a2 { bottom: 4%; right: 4%; font-size: 3.6rem; }
 .a3 { top: 22%; right: 3%; }
 .a4 { top: 30%; left: 2%; font-size: 3.4rem; }
-.a5 { top: 9%; left: 6%; }
+.a5 { top: 14%; left: 4%; }
 .a6 { bottom: 20%; right: 6%; }
 @keyframes float { 50% { transform: translateY(-10px) rotate(4deg); } }
 
@@ -218,3 +218,6 @@ h1, h2, .rainbow, .btn, .open-btn { font-family: var(--font-display); font-weigh
   background: linear-gradient(45deg, #fdb45c, #f5576c 50%, #a24fd6);
   box-shadow: 0 4px 0 rgb(0 0 0 / 0.15);
 }
+
+/* keep the parrot clear of the heading on the details page */
+/* .details .a5 { top: 250px; left: 7%; } */
